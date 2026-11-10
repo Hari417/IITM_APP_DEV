@@ -16,10 +16,5 @@ csrf = CSRFProtect()
 
 @login_manager.user_loader
 def load_user(user_id):
-
     from app.models import User
-
-    try : 
-        return db.session.get(User, int(user_id))
-    except (ValueError, TypeError):
-        return None
+    return db.session.get(User, user_id)
