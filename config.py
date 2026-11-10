@@ -14,3 +14,12 @@ class Config:
 
     # Disable unnecessary SQLAlchemy event tracking
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    ADMIN_EMAIL = os.environ.get(
+        "EMP_ADMIN_EMAIL",
+        "admin@emp.local"
+    )
+    ADMIN_PASSWORD = os.environ.get(
+        "EMP_ADMIN_PASSWORD",
+        "admin12345"
+    )

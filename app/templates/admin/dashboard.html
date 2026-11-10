@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - EMP{% endblock %}
+{% block content %}
+<h1 class="mb-4">Admin Dashboard</h1>
+<div class="mb-4 d-flex gap-2">
+    <a class="btn btn-primary" href="{{ url_for('admin.courses') }}">Manage courses</a>
+    <a class="btn btn-primary" href="{{ url_for('admin.examinations') }}">Manage examinations</a>
+</div>
+
+<div class="row g-3 mb-4">
+    {% for label, value in [
+        ("Total users", statistics.users),
+        ("Students", statistics.students),
+        ("Examiners", statistics.examiners),
+        ("Pending examiners", statistics.pending_examiners)
+    ] %}
+        <div class="col-sm-6 col-lg-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">{{ label }}</div>
+                    <div class="fs-2 fw-bold">{{ value }}</div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="h4">Examiner management</h2>
+        {% if examiners %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Account</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for profile in examiners %}
+                        <tr>
+                            <td>{{ profile.user.full_name }}</td>
+                            <td>{{ profile.user.email }}</td>
+                            <td>{{ profile.department }}</td>
+                            <td>{{ profile.approval_status }}</td>
+                            <td>{{ "Active" if profile.user.is_active else "Inactive" }}</td>
+                            <td class="d-flex gap-2">
+                                {% if profile.approval_status != "approved" %}
+                                    <form method="post" action="{{ url_for('admin.approve_examiner', examiner_id=profile.examiner_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                {% endif %}
+                                {% if profile.approval_status != "rejected" %}
+                                    <form method="post" action="{{ url_for('admin.reject_examiner', examiner_id=profile.examiner_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-outline-danger btn-sm">Reject</button>
+                                    </form>
+                                {% endif %}
+                                {% if profile.user.is_active %}
+                                    <form method="post" action="{{ url_for('admin.deactivate_examiner', examiner_id=profile.examiner_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-outline-secondary btn-sm">Deactivate</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No examiner accounts have been registered.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

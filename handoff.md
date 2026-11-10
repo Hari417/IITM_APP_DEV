@@ -1,5 +1,8 @@
 # PROJECT HANDOFF — EXAMINATION MANAGEMENT PORTAL (EMP)
 
+> Current decision: user IDs use a normal auto-incrementing integer primary key
+> (`1`, `2`, `3`, etc.). The earlier `YY_NNNN` custom-ID design is retired.
+
 ## 1. Project Overview
 
 I am developing an **Examination Management Portal (EMP)** as part of my IITM Application Development coursework.

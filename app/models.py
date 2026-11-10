@@ -7,8 +7,6 @@ from sqlalchemy import (
     Index,
     Numeric,
     UniqueConstraint,
-    select,
-    update,
     text,
 )
 
@@ -17,67 +15,15 @@ from app.extensions import db
 
 
 # ============================================================
-# 1. USER ID SEQUENCE
-# ============================================================
-
-class UserIdSequence(db.Model):
-    """
-    Stores the global user ID counter.
-
-    The counter does not reset when the year changes.
-    Example: 26_0001, 26_0002, 27_0003.
-    """
-
-    __tablename__ = "user_id_sequence"
-
-    sequence_id = db.Column(db.Integer, primary_key=True)
-    last_number = db.Column(db.Integer, nullable=False, default=0)
-
-
-def generate_user_id():
-    """
-    Generate the next user ID.
-
-    IMPORTANT:
-    Call this inside the same database transaction
-    used to create the User and its profile.
-    """
-
-    result = db.session.execute(
-        update(UserIdSequence)
-        .where(UserIdSequence.sequence_id == 1)
-        .values(
-            last_number=UserIdSequence.last_number + 1
-        )
-    )
-
-    if result.rowcount != 1:
-        raise RuntimeError(
-            "User ID sequence is not initialized. "
-            "Restart the application."
-        )
-
-    next_number = db.session.execute(
-        select(UserIdSequence.last_number)
-        .where(UserIdSequence.sequence_id == 1)
-    ).scalar_one()
-
-    year_prefix = datetime.now().strftime("%y")
-
-    return f"{year_prefix}_{next_number:04d}"
-
-
-# ============================================================
-# 2. USERS
+# 1. USERS
 # ============================================================
 
 class User(db.Model, UserMixin):
 
     __tablename__ = "users"
 
-    # Actual primary key: e.g. 26_0001
     user_id = db.Column(
-        db.String(20),
+        db.Integer,
         primary_key=True
     )
 
@@ -117,14 +63,16 @@ class User(db.Model, UserMixin):
     student_profile = db.relationship(
         "StudentProfile",
         back_populates="user",
-        uselist=False
+        uselist=False,
+        cascade="all, delete-orphan"
     )
 
     examiner_profile = db.relationship(
         "ExaminerProfile",
         foreign_keys="ExaminerProfile.examiner_id",
         back_populates="user",
-        uselist=False
+        uselist=False,
+        cascade="all, delete-orphan"
     )
 
     approved_examiners = db.relationship(
@@ -147,12 +95,11 @@ class User(db.Model, UserMixin):
     )
 
     def get_id(self):
-        # Flask-Login uses the string primary key.
-        return self.user_id
+        return str(self.user_id)
 
 
 # ============================================================
-# 3. STUDENT PROFILES
+# 2. STUDENT PROFILES
 # ============================================================
 
 class StudentProfile(db.Model):
@@ -160,7 +107,7 @@ class StudentProfile(db.Model):
     __tablename__ = "student_profiles"
 
     student_id = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         primary_key=True
     )
@@ -193,7 +140,7 @@ class StudentProfile(db.Model):
 
 
 # ============================================================
-# 4. EXAMINER PROFILES
+# 3. EXAMINER PROFILES
 # ============================================================
 
 class ExaminerProfile(db.Model):
@@ -201,7 +148,7 @@ class ExaminerProfile(db.Model):
     __tablename__ = "examiner_profiles"
 
     examiner_id = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         primary_key=True
     )
@@ -223,7 +170,7 @@ class ExaminerProfile(db.Model):
     )
 
     approved_by = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         nullable=True
     )
@@ -383,7 +330,8 @@ class Examination(db.Model):
 
     rubrics = db.relationship(
         "Rubric",
-        back_populates="exam"
+        back_populates="exam",
+        cascade="all, delete-orphan"
     )
 
     slots = db.relationship(
@@ -447,13 +395,13 @@ class ExaminerAssignment(db.Model):
     )
 
     examiner_id = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         nullable=False
     )
 
     assigned_by = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         nullable=False
     )
@@ -483,7 +431,8 @@ class ExaminerAssignment(db.Model):
 
     slots = db.relationship(
         "ExamSlot",
-        back_populates="assignment"
+        back_populates="assignment",
+        overlaps="exam,slots"
     )
 
     __table_args__ = (
@@ -543,7 +492,8 @@ class Rubric(db.Model):
 
     criteria = db.relationship(
         "RubricCriterion",
-        back_populates="rubric"
+        back_populates="rubric",
+        cascade="all, delete-orphan"
     )
 
     evaluations = db.relationship(
@@ -640,6 +590,7 @@ class ExamSlot(db.Model):
 
     exam_id = db.Column(
         db.Integer,
+        db.ForeignKey("examinations.exam_id"),
         nullable=False
     )
 
@@ -711,17 +662,20 @@ class ExamSlot(db.Model):
 
     exam = db.relationship(
         "Examination",
-        back_populates="slots"
+        back_populates="slots",
+        overlaps="slots"
     )
 
     assignment = db.relationship(
         "ExaminerAssignment",
-        back_populates="slots"
+        back_populates="slots",
+        overlaps="exam,slots"
     )
 
     bookings = db.relationship(
         "Booking",
-        back_populates="slot"
+        back_populates="slot",
+        overlaps="bookings,exam"
     )
 
     old_booking_events = db.relationship(
@@ -751,13 +705,14 @@ class Booking(db.Model):
     )
 
     student_id = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         nullable=False
     )
 
     exam_id = db.Column(
         db.Integer,
+        db.ForeignKey("examinations.exam_id"),
         nullable=False
     )
 
@@ -805,12 +760,14 @@ class Booking(db.Model):
 
     exam = db.relationship(
         "Examination",
-        back_populates="bookings"
+        back_populates="bookings",
+        overlaps="bookings,slot"
     )
 
     slot = db.relationship(
         "ExamSlot",
-        back_populates="bookings"
+        back_populates="bookings",
+        overlaps="bookings,exam"
     )
 
     evaluation = db.relationship(
@@ -852,7 +809,7 @@ class Evaluation(db.Model):
     )
 
     examiner_id = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         nullable=False
     )
@@ -1002,7 +959,7 @@ class BookingEvent(db.Model):
     )
 
     performed_by = db.Column(
-        db.String(20),
+        db.Integer,
         db.ForeignKey("users.user_id"),
         nullable=False
     )

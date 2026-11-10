@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Examinations - EMP{% endblock %}
+{% block content %}
+<h1 class="mb-4">Examination management</h1>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                {% for field in [form.course_id, form.exam_name, form.exam_type, form.duration_minutes, form.maximum_marks, form.status] %}
+                    <div class="col-md-4">
+                        {{ field.label(class="form-label") }}
+                        {{ field(class="form-control" if field.type != "SelectField" else "form-select") }}
+                        {% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endfor %}
+                {% for field in [form.slot_creation_start, form.slot_creation_end, form.booking_start, form.booking_end] %}
+                    <div class="col-md-3">
+                        {{ field.label(class="form-label") }}
+                        {{ field(class="form-control") }}
+                        {% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="mt-3">{{ form.submit(class="btn btn-primary") }}</div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="h4">Examinations</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>Course</th><th>Name</th><th>Type</th><th>Booking period</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for exam in examinations %}
+                    <tr>
+                        <td>{{ exam.course.course_code }}</td>
+                        <td>{{ exam.exam_name }}</td>
+                        <td>{{ exam.exam_type }}</td>
+                        <td>{{ exam.booking_start.strftime("%Y-%m-%d %H:%M") }} to {{ exam.booking_end.strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td>
+                            {{ exam.status }}
+                            <a class="btn btn-sm btn-outline-primary ms-2"
+                               href="{{ url_for('admin.rubric', exam_id=exam.exam_id) }}">
+                                Rubric
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="text-muted">No examinations yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

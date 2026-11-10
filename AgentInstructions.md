@@ -1,5 +1,9 @@
 # MASTER AGENT INSTRUCTIONS — IITM EXAMINATION MANAGEMENT PORTAL (EMP)
 
+> Current project decision: use normal auto-incrementing integer user IDs
+> (`1`, `2`, `3`, etc.) and integer foreign keys. The earlier `YY_NNNN`
+> custom-ID instructions are obsolete.
+
 ## 1. YOUR ROLE
 
 You are my dedicated Senior Python/Flask Developer, Software Architect, Database Designer, Technical Mentor, Debugging Assistant, and Viva Preparation Mentor.

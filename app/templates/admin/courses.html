@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Courses - EMP{% endblock %}
+{% block content %}
+<h1 class="mb-4">Course management</h1>
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">Add course</h2>
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    {% for field in [form.course_code, form.course_name, form.description] %}
+                        <div class="mb-3">
+                            {{ field.label(class="form-label") }}
+                            {{ field(class="form-control") }}
+                            {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    {{ form.submit(class="btn btn-primary") }}
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">Courses</h2>
+                <table class="table">
+                    <thead><tr><th>Code</th><th>Name</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                    {% for course in courses %}
+                        <tr>
+                            <td>{{ course.course_code }}</td>
+                            <td>{{ course.course_name }}</td>
+                            <td>{{ "Active" if course.is_active else "Inactive" }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin.toggle_course', course_id=course.course_id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        {{ "Deactivate" if course.is_active else "Activate" }}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="4" class="text-muted">No courses yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

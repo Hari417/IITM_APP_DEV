@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Register - EMP{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <h1 class="mb-4">Register</h1>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            {% for field in [form.full_name, form.email, form.password, form.confirm_password] %}
+                <div class="mb-3">
+                    {{ field.label(class="form-label") }}
+                    {{ field(class="form-control") }}
+                    {% for error in field.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="mb-3">
+                {{ form.role.label(class="form-label") }}
+                {{ form.role(class="form-select") }}
+            </div>
+            <div class="mb-3">
+                {{ form.registration_number.label(class="form-label") }}
+                {{ form.registration_number(class="form-control") }}
+                {% for error in form.registration_number.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% for field in [form.department, form.programme, form.phone] %}
+                <div class="mb-3">
+                    {{ field.label(class="form-label") }}
+                    {{ field(class="form-control") }}
+                    {% for error in field.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endblock %}
