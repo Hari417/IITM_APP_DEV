@@ -120,3 +120,12 @@ class CriterionForm(FlaskForm):
         validators=[DataRequired(), NumberRange(min=0, max=100)]
     )
     submit = SubmitField("Add criterion")
+
+
+class ExaminerAssignmentForm(FlaskForm):
+    examiner_id = SelectField(
+        "Examiner",
+        coerce=int,
+        validators=[DataRequired()]
+    )
+    submit = SubmitField("Assign examiner")

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Assign Examiner - EMP{% endblock %}
+{% block content %}
+<h1 class="mb-1">Assign examiner</h1>
+<p class="text-muted">{{ exam.exam_name }} ({{ exam.course.course_code }})</p>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.examiner_id.label(class="form-label") }}
+                {% if form.examiner_id.choices %}
+                    {{ form.examiner_id(class="form-select") }}
+                {% else %}
+                    <p class="text-muted">No approved active examiners are available.</p>
+                {% endif %}
+                {% for error in form.examiner_id.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-primary", disabled=not form.examiner_id.choices) }}
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="h4">Assigned examiners</h2>
+        <ul class="list-group">
+        {% for assignment in assignments %}
+            <li class="list-group-item">
+                {{ assignment.examiner.full_name }}
+                <span class="text-muted">({{ assignment.examiner.email }})</span>
+            </li>
+        {% else %}
+            <li class="list-group-item text-muted">No examiners assigned yet.</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

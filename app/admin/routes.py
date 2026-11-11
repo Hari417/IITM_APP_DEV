@@ -6,6 +6,7 @@ from app.admin import admin
 from app.admin.forms import (
     CourseForm,
     CriterionForm,
+    ExaminerAssignmentForm,
     ExaminationForm,
     RubricForm,
 )
@@ -14,6 +15,7 @@ from app.extensions import db
 from app.models import (
     Course,
     Examination,
+    ExaminerAssignment,
     ExaminerProfile,
     Rubric,
     RubricCriterion,
@@ -130,6 +132,69 @@ def examinations():
         "admin/examinations.html",
         form=form,
         examinations=exam_list
+    )
+
+
+@admin.route(
+    "/examinations/<int:exam_id>/assign-examiner",
+    methods=["GET", "POST"]
+)
+@role_required("admin")
+def assign_examiner(exam_id):
+    exam = db.session.get(Examination, exam_id)
+    if exam is None:
+        abort(404)
+
+    form = ExaminerAssignmentForm()
+    available_examiners = (
+        db.session.query(ExaminerProfile)
+        .join(ExaminerProfile.user)
+        .filter(
+            ExaminerProfile.approval_status == "approved",
+            User.is_active.is_(True)
+        )
+        .order_by(User.full_name)
+        .all()
+    )
+    form.examiner_id.choices = [
+        (profile.examiner_id, profile.user.full_name)
+        for profile in available_examiners
+    ]
+
+    if form.validate_on_submit():
+        already_assigned = db.session.query(ExaminerAssignment).filter_by(
+            exam_id=exam.exam_id,
+            examiner_id=form.examiner_id.data
+        ).first()
+        if already_assigned:
+            form.examiner_id.errors.append(
+                "This examiner is already assigned to this examination."
+            )
+        else:
+            db.session.add(ExaminerAssignment(
+                exam_id=exam.exam_id,
+                examiner_id=form.examiner_id.data,
+                assigned_by=current_admin_id()
+            ))
+            db.session.commit()
+            flash("Examiner assigned successfully.", "success")
+            return redirect(url_for(
+                "admin.assign_examiner",
+                exam_id=exam.exam_id
+            ))
+
+    assignments = (
+        db.session.query(ExaminerAssignment)
+        .join(ExaminerAssignment.examiner)
+        .filter(ExaminerAssignment.exam_id == exam.exam_id)
+        .order_by(User.full_name)
+        .all()
+    )
+    return render_template(
+        "admin/assign_examiner.html",
+        exam=exam,
+        form=form,
+        assignments=assignments
     )
 
 

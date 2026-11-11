@@ -45,6 +45,10 @@
                                href="{{ url_for('admin.rubric', exam_id=exam.exam_id) }}">
                                 Rubric
                             </a>
+                            <a class="btn btn-sm btn-outline-secondary ms-2"
+                               href="{{ url_for('admin.assign_examiner', exam_id=exam.exam_id) }}">
+                                Examiners
+                            </a>
                         </td>
                     </tr>
                 {% else %}

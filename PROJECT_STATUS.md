@@ -31,6 +31,7 @@ Phase 3 - Admin Module
 - [x] Admin dashboard and examiner approval/deactivation
 - [x] Admin course and examination creation
 - [x] Admin rubric and criterion creation
+- [x] Admin examiner assignment
 
 ## Completed Setup
 - [x] Python environment setup
@@ -43,7 +44,6 @@ Phase 3 - Admin Module
 - [x] Admin account creation
 - [ ] Authentication role-specific dashboards
 - [ ] Admin course and examination editing
-- [ ] Admin examiner assignment
 - [ ] Admin rubric editing
 - [ ] Examiner module
 - [ ] Student module
