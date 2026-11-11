@@ -18,7 +18,7 @@ Examination Management Portal
 - Flask-SQLAlchemy
 
 ## Current Phase
-Phase 3 - Admin Module
+Phase 4 - Examiner Module
 
 ## Completed
 - [x] Architecture approved
@@ -32,6 +32,7 @@ Phase 3 - Admin Module
 - [x] Admin course and examination creation
 - [x] Admin rubric and criterion creation
 - [x] Admin examiner assignment
+- [x] Examiner dashboard and slot creation
 
 ## Completed Setup
 - [x] Python environment setup
@@ -45,7 +46,7 @@ Phase 3 - Admin Module
 - [ ] Authentication role-specific dashboards
 - [ ] Admin course and examination editing
 - [ ] Admin rubric editing
-- [ ] Examiner module
+- [ ] Examiner slot editing and deletion
 - [ ] Student module
 - [ ] Integration and testing
 - [ ] Documentation and submission
@@ -57,4 +58,4 @@ Phase 3 - Admin Module
   `instance/emp.db.custom-id-backup`; the active database uses integer IDs.
 
 ## Next Task
-Implement and test Admin examiner assignment.
+Implement examiner booking list and evaluation.

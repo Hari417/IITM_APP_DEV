@@ -20,6 +20,10 @@
                         <a class="btn btn-light btn-sm" href="{{ url_for('admin.dashboard') }}">
                             Admin
                         </a>
+                    {% elif current_user.role == "examiner" %}
+                        <a class="btn btn-light btn-sm" href="{{ url_for('examiner.dashboard') }}">
+                            Examiner
+                        </a>
                     {% endif %}
                     <form method="post" action="{{ url_for('auth.logout') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

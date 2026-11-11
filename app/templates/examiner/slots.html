@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Examination Slots - EMP{% endblock %}
+{% block content %}
+<h1 class="mb-1">Examination slots</h1>
+<p class="text-muted">{{ assignment.exam.exam_name }}</p>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h2 class="h4">Create a slot</h2>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            {{ form.assignment_id(type="hidden") }}
+            <div class="row g-3">
+                {% for field in [form.slot_date, form.start_time, form.end_time, form.capacity] %}
+                    <div class="col-md-3">
+                        {{ field.label(class="form-label") }}
+                        {{ field(class="form-control") }}
+                        {% for error in field.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="mt-3">{{ form.submit(class="btn btn-primary") }}</div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="h4">Existing slots</h2>
+        <table class="table">
+            <thead><tr><th>Date</th><th>Time</th><th>Capacity</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for slot in slots %}
+                <tr>
+                    <td>{{ slot.slot_date }}</td>
+                    <td>{{ slot.start_time }} - {{ slot.end_time }}</td>
+                    <td>{{ slot.capacity }}</td>
+                    <td>{{ slot.status }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="text-muted">No slots created yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

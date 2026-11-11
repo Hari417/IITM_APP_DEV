@@ -50,8 +50,10 @@ def create_app(config_class=Config):
     from app.routes import main
     from app.auth import auth
     from app.admin import admin
+    from app.examiner import examiner
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(admin)
+    app.register_blueprint(examiner)
 
     return app
